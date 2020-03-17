@@ -540,6 +540,23 @@ fn make_shared_sidewalk_corner(
     l2: &Lane,
     timer: &mut Timer,
 ) -> PolyLine {
+    let corner1 = driving_side
+        .right_shift_line(l1.last_line(), l1.width / 2.0)
+        .pt2();
+    let corner2 = driving_side
+        .right_shift_line(l2.first_line(), l2.width / 2.0)
+        .pt1();
+
+    if corner1 == corner2 {
+        return PolyLine::new(vec![l1.last_pt(), l2.first_pt()]);
+    }
+
+    println!("{} to {}, at {}", l1.id, l2.id, i.id);
+
+    Ring::new(i.polygon.points().clone()).get_shorter_slice_btwn(corner1, corner2)
+
+
+    /*
     let baseline = PolyLine::new(vec![l1.last_pt(), l2.first_pt()]);
 
     // Find all of the points on the intersection polygon between the two sidewalks. Assumes
@@ -553,7 +570,6 @@ fn make_shared_sidewalk_corner(
 
     // TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.
     if false {
-        return Ring::new(i.polygon.points().clone()).get_shorter_slice_btwn(corner1, corner2);
     }
 
     // The order of the points here seems backwards, but it's because we scan from corner2
@@ -623,7 +639,7 @@ fn make_shared_sidewalk_corner(
         ));
         return baseline;
     }
-    result
+    result*/
 }
 
 fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {

@@ -1,4 +1,4 @@
-use crate::{Distance, Line, PolyLine, Polygon, Pt2D};
+use crate::{Distance, EPSILON_DIST, Line, PolyLine, Polygon, Pt2D};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt;
@@ -64,9 +64,24 @@ impl Ring {
         }
 
         let candidate1 = pl.exact_slice(dist1, dist2);
-        let candidate2 = pl
-            .exact_slice(dist2, pl.length())
-            .extend(pl.exact_slice(Distance::ZERO, dist1));
+        let candidate2 = {
+            let pl1 = if pl.length() - dist2 > EPSILON_DIST {
+                Some(pl.exact_slice(dist2, pl.length()))
+            } else {
+                None
+            };
+            let pl2 = if dist1 > EPSILON_DIST {
+                Some(pl.exact_slice(Distance::ZERO, dist1))
+            } else {
+                None
+            };
+            match (pl1, pl2) {
+                (Some(a), Some(b)) => a.extend(b),
+                (Some(a), None) => a,
+                (None, Some(b)) => b,
+                (None, None) => panic!("get_shorter_slice_btwn failed because length is zero"),
+            }
+        };
         if candidate1.length() < candidate2.length() {
             candidate1
         } else {
