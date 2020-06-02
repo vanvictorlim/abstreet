@@ -17,6 +17,8 @@ pub struct Spinner {
 
     up: Button,
     down: Button,
+    max: Button,
+    min: Button,
 
     top_left: ScreenPt,
     dims: ScreenDims,
@@ -30,9 +32,15 @@ impl Spinner {
         let down = Btn::text_fg("▼")
             .build(ctx, "decrease value", None)
             .take_btn();
+        let max = Btn::text_fg(high.to_string())
+            .build(ctx, "highest value", None)
+            .take_btn();
+        let min = Btn::text_fg(low.to_string())
+            .build(ctx, "lowest value", None)
+            .take_btn();
 
         let dims = ScreenDims::new(
-            TEXT_WIDTH + up.get_dims().width,
+            TEXT_WIDTH + up.get_dims().width + (min.get_dims().width).max(max.get_dims().width),
             up.get_dims().height + down.get_dims().height,
         );
 
@@ -43,6 +51,8 @@ impl Spinner {
 
             up,
             down,
+            min,
+            max,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims,
@@ -65,6 +75,14 @@ impl WidgetImpl for Spinner {
             top_left.x + TEXT_WIDTH,
             top_left.y + self.up.get_dims().height,
         ));
+        self.max.set_pos(ScreenPt::new(
+            self.up.top_left.x + self.up.get_dims().width,
+            top_left.y,
+        ));
+        self.min.set_pos(ScreenPt::new(
+            self.up.top_left.x + self.up.get_dims().width,
+            top_left.y + self.max.get_dims().height,
+        ));
     }
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
@@ -83,6 +101,21 @@ impl WidgetImpl for Spinner {
                 self.current -= 1;
             }
             ctx.no_op_event(true, |ctx| self.down.event(ctx, output));
+            return;
+        }
+
+        self.max.event(ctx, output);
+        if output.outcome.take().is_some() {
+            self.current = self.high;
+            ctx.no_op_event(true, |ctx| self.max.event(ctx, output));
+            return;
+        }
+
+        self.min.event(ctx, output);
+        if output.outcome.take().is_some() {
+            self.current = self.low;
+            ctx.no_op_event(true, |ctx| self.min.event(ctx, output));
+            return;
         }
     }
 
@@ -101,5 +134,7 @@ impl WidgetImpl for Spinner {
 
         self.up.draw(g);
         self.down.draw(g);
+        self.max.draw(g);
+        self.min.draw(g);
     }
 }
