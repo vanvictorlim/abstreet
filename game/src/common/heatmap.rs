@@ -195,7 +195,7 @@ pub fn make_heatmap(
     }
 
     // Now draw rectangles
-    let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
+    /*let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
     for y in 0..grid.height {
         for x in 0..grid.width {
             let count = grid.data[grid.idx(x, y)];
@@ -209,6 +209,36 @@ pub fn make_heatmap(
                     square.translate((x * opts.resolution) as f64, (y * opts.resolution) as f64),
                 );
             }
+        }
+    }*/
+
+    let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, false);
+    for feature in c.contours(&grid.data, &[distrib.select(Statistic::P50) as f64]) {
+        match feature.geometry.unwrap().value {
+            geojson::Value::MultiPolygon(polygons) => {
+                for p in polygons {
+                    let mut pieces = Vec::new();
+                    for pts in p {
+                        pieces.push(Polygon::new(
+                            &pts.into_iter()
+                                .map(|pt| {
+                                    Pt2D::new(
+                                        pt[0] * (opts.resolution as f64),
+                                        pt[1] * (opts.resolution as f64),
+                                    )
+                                })
+                                .collect(),
+                        ));
+                    }
+                    pieces.reverse();
+                    // TODO polygon difference doesn't work
+                    batch.push(Color::RED.alpha(0.5), pieces.pop().unwrap());
+                    for hole in pieces {
+                        batch.push(Color::BLUE.alpha(0.5), hole);
+                    }
+                }
+            }
+            _ => unreachable!(),
         }
     }
 
