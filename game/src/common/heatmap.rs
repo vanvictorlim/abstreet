@@ -195,7 +195,7 @@ pub fn make_heatmap(
     }
 
     // Now draw rectangles
-    let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
+    /*let square = Polygon::rectangle(opts.resolution as f64, opts.resolution as f64);
     for y in 0..grid.height {
         for x in 0..grid.width {
             let count = grid.data[grid.idx(x, y)];
@@ -209,6 +209,31 @@ pub fn make_heatmap(
                     square.translate((x * opts.resolution) as f64, (y * opts.resolution) as f64),
                 );
             }
+        }
+    }*/
+
+    let mut rows = Vec::new();
+    for row in grid.data.chunks(grid.width) {
+        rows.push(row.into_iter().map(|x| *x as i16).collect());
+    }
+    let field = marching_squares::Field {
+        dimensions: (grid.width, grid.height),
+        top_left: marching_squares::Point { x: 0.0, y: 0.0 },
+        pixel_size: (opts.resolution as f32, opts.resolution as f32),
+        values: &rows,
+    };
+    for line in field.get_contours(distrib.select(Statistic::P50) as i16) {
+        if line.points.len() >= 3 {
+            batch.push(
+                Color::RED.alpha(0.5),
+                Polygon::new(
+                    &line
+                        .points
+                        .into_iter()
+                        .map(|pt| Pt2D::new(pt.x.into(), pt.y.into()))
+                        .collect(),
+                ),
+            );
         }
     }
 
