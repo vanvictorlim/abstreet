@@ -3,7 +3,7 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
-use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
+use ezgui::{Color, Drawable, FancyColor, GeomBatch, GfxCtx, Prerender, RewriteColor};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
 
@@ -17,7 +17,7 @@ pub struct AlmostDrawLane {
 }
 
 impl AlmostDrawLane {
-    pub fn finish(mut self, prerender: &Prerender, _: &ColorScheme, lane: &Lane) -> DrawLane {
+    pub fn finish(mut self, prerender: &Prerender, cs: &ColorScheme, lane: &Lane) -> DrawLane {
         // Need prerender to load the (cached) SVGs
         if lane.is_bus() || lane.is_biking() || lane.lane_type == LaneType::Construction {
             let buffer = Distance::meters(2.0);
@@ -99,14 +99,8 @@ impl DrawLane {
         if lane.lane_type != LaneType::LightRail {
             draw.push(
                 match lane.lane_type {
-                    LaneType::Driving => cs.driving_lane,
-                    LaneType::Bus => cs.bus_lane,
-                    LaneType::Parking => cs.parking_lane,
                     LaneType::Sidewalk => cs.sidewalk,
-                    LaneType::Biking => cs.bike_lane,
-                    LaneType::SharedLeftTurn => cs.driving_lane,
-                    LaneType::Construction => cs.parking_lane,
-                    LaneType::LightRail => unreachable!(),
+                    _ => cs.road_surface,
                 },
                 polygon.clone(),
             );
@@ -183,6 +177,15 @@ impl DrawLane {
                     }
                 }
             };
+            if (lane.is_bus() || lane.is_biking()) && road.dir_and_offset(lane.id).1 != 0 {
+                draw.push(
+                    cs.general_road_marking,
+                    lane.lane_center_pts
+                        .shift_left(lane.width / 2.0)
+                        .get(timer)
+                        .make_polygons(Distance::meters(0.25)),
+                );
+            }
         }
         if road.zone.is_some() {
             draw.push(cs.private_road.alpha(0.5), polygon.clone());

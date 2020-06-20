@@ -58,7 +58,7 @@ impl DrawParkingLot {
         for aisle in &lot.aisles {
             let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
             batch.push(
-                cs.driving_lane,
+                cs.road_surface,
                 PolyLine::unchecked_new(aisle.clone()).make_polygons(aisle_thickness),
             );
         }

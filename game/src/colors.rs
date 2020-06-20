@@ -54,10 +54,7 @@ pub struct ColorScheme {
     pub gui_style: Style,
 
     // Roads
-    pub driving_lane: Color,
-    pub bus_lane: Color,
-    pub parking_lane: Color,
-    pub bike_lane: Color,
+    pub road_surface: Color,
     pub sidewalk: Color,
     pub sidewalk_lines: Color,
     pub general_road_marking: Color,
@@ -117,6 +114,8 @@ pub struct ColorScheme {
 
     // Misc
     pub parking_trip: Color,
+    pub bike_trip: Color,
+    pub bus_trip: Color,
     pub before_changes: Color,
     pub after_changes: Color,
 }
@@ -153,10 +152,7 @@ impl ColorScheme {
             gui_style,
 
             // Roads
-            driving_lane: Color::BLACK,
-            bus_lane: Color::rgb(190, 74, 76),
-            parking_lane: Color::grey(0.2),
-            bike_lane: Color::rgb(15, 125, 75),
+            road_surface: Color::BLACK,
             sidewalk: Color::grey(0.8),
             sidewalk_lines: Color::grey(0.7),
             general_road_marking: Color::WHITE,
@@ -222,6 +218,8 @@ impl ColorScheme {
 
             // Misc
             parking_trip: hex("#4E30A6"),
+            bike_trip: Color::rgb(15, 125, 75),
+            bus_trip: Color::rgb(190, 74, 76),
             before_changes: Color::BLUE,
             after_changes: Color::RED,
         }
@@ -276,7 +274,7 @@ impl ColorScheme {
         let mut cs = ColorScheme::standard();
         cs.map_background = hex("#CFE2C4");
         cs.water = hex("#B4D3E5");
-        cs.driving_lane = hex("#C6CDD5");
+        cs.road_surface = hex("#C6CDD5");
         cs.building = hex("#CCD4BD");
         cs.sidewalk = hex("#98A1AA");
         cs
@@ -286,7 +284,7 @@ impl ColorScheme {
         let mut cs = ColorScheme::standard();
         cs.map_background = hex("#FEE4D7");
         cs.grass = hex("#F6C6AF");
-        cs.driving_lane = hex("#BECBD3");
+        cs.road_surface = hex("#BECBD3");
         cs.building = hex("#DEAA95");
         cs.sidewalk = hex("#8B9EA8");
         cs
@@ -306,9 +304,7 @@ impl ColorScheme {
         ];
         cs.grass = hex("#84BA3B"); // #2F8C2C
         cs.building = hex("#367335"); // #194C18
-        cs.normal_intersection = hex("#4B5485");
-        cs.driving_lane = hex("#384173");
-        cs.parking_lane = hex("#4B5485");
+        cs.road_surface = hex("#384173"); // hex("#4B5485");
         cs.sidewalk = hex("#89ABD9");
         cs.sidewalk_lines = hex("#4B5485");
         cs.general_road_marking = hex("#89ABD9");
@@ -331,13 +327,11 @@ impl ColorScheme {
         cs.grass = hex("#3F8C0C");
         cs.building = hex("#8099A8"); // #5E7486
         cs.map_background = hex("#737373");
-        cs.driving_lane = hex("#2A2A2A"); // TODO for arterial
+        cs.road_surface = hex("#2A2A2A"); // TODO for arterial
         cs.road_center_line = hex("#DB952E");
         cs.general_road_marking = hex("#D6D6D6");
         cs.sidewalk = cs.general_road_marking;
         cs.sidewalk_lines = hex("#707070");
-        cs.bike_lane = hex("#72CE36");
-        cs.bus_lane = hex("#AD302D");
         cs
     }
 }

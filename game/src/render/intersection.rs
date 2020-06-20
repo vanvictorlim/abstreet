@@ -33,7 +33,7 @@ impl DrawIntersection {
     ) -> DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
-        default_geom.push(cs.normal_intersection, i.polygon.clone());
+        default_geom.push(cs.road_surface, i.polygon.clone());
         default_geom.extend(cs.sidewalk, calculate_corners(i, map, timer));
 
         for turn in map.get_turns_in_intersection(i.id) {
