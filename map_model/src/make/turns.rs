@@ -636,12 +636,29 @@ fn get_sidewalk<'a>(lanes: &'a Vec<Lane>, children: &Vec<(LaneID, LaneType)>) ->
     None
 }
 
+// TODO I think it's time to revamp turn generation; this is getting confusing.
+// From a bus or bike lane: prefer going to another bus or bike lane, but fallback to going to
+// driving.
+// From a driving lane: fallback to going to a bike or bus lane.
 fn filter_vehicle_lanes(lanes: &Vec<(LaneID, LaneType)>, preferred: LaneType) -> Vec<LaneID> {
-    let preferred = filter_lanes(lanes, preferred);
-    if !preferred.is_empty() {
-        return preferred;
+    let matched = filter_lanes(lanes, preferred);
+    if !matched.is_empty() {
+        return matched;
     }
-    filter_lanes(lanes, LaneType::Driving)
+    if preferred == LaneType::Driving {
+        lanes
+            .iter()
+            .filter_map(|(id, lt)| {
+                if *lt == LaneType::Biking || *lt == LaneType::Bus {
+                    Some(*id)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    } else {
+        filter_lanes(lanes, LaneType::Driving)
+    }
 }
 
 fn filter_lanes(lanes: &Vec<(LaneID, LaneType)>, filter: LaneType) -> Vec<LaneID> {

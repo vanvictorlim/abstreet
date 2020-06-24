@@ -1,0 +1,323 @@
+{
+  "map_name": "montlake",
+  "edits_name": "bug",
+  "commands": [
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 6444010,
+            "i1": {
+              "osm_node_id": 53198127
+            },
+            "i2": {
+              "osm_node_id": 53198128
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 3,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332060243,
+            "i1": {
+              "osm_node_id": 1635790583
+            },
+            "i2": {
+              "osm_node_id": 53128053
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332060243,
+            "i1": {
+              "osm_node_id": 1635790583
+            },
+            "i2": {
+              "osm_node_id": 53128053
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332060243,
+            "i1": {
+              "osm_node_id": 1635790583
+            },
+            "i2": {
+              "osm_node_id": 53128053
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332060253,
+            "i1": {
+              "osm_node_id": 3391701869
+            },
+            "i2": {
+              "osm_node_id": 53198127
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332060253,
+            "i1": {
+              "osm_node_id": 3391701869
+            },
+            "i2": {
+              "osm_node_id": 53198127
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332060261,
+            "i1": {
+              "osm_node_id": 3391701875
+            },
+            "i2": {
+              "osm_node_id": 3391701872
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 332060261,
+            "i1": {
+              "osm_node_id": 3391701875
+            },
+            "i2": {
+              "osm_node_id": 3391701872
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428224936,
+            "i1": {
+              "osm_node_id": 53198127
+            },
+            "i2": {
+              "osm_node_id": 1635790583
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428224936,
+            "i1": {
+              "osm_node_id": 53198127
+            },
+            "i2": {
+              "osm_node_id": 1635790583
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 428224936,
+            "i1": {
+              "osm_node_id": 53198127
+            },
+            "i2": {
+              "osm_node_id": 1635790583
+            }
+          },
+          "num_fwd": 4,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 2
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 752724204,
+            "i1": {
+              "osm_node_id": 3391701877
+            },
+            "i2": {
+              "osm_node_id": 3391701875
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 752724204,
+            "i1": {
+              "osm_node_id": 3391701877
+            },
+            "i2": {
+              "osm_node_id": 3391701875
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 752724205,
+            "i1": {
+              "osm_node_id": 3391701872
+            },
+            "i2": {
+              "osm_node_id": 3391701869
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 0
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    },
+    {
+      "ChangeLaneType": {
+        "id": {
+          "parent": {
+            "osm_way_id": 752724205,
+            "i1": {
+              "osm_node_id": 3391701872
+            },
+            "i2": {
+              "osm_node_id": 3391701869
+            }
+          },
+          "num_fwd": 3,
+          "num_back": 0,
+          "fwd": true,
+          "idx": 1
+        },
+        "lt": "Bus",
+        "orig_lt": "Driving"
+      }
+    }
+  ],
+  "proposal_description": [],
+  "proposal_link": null
+}
