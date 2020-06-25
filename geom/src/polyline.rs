@@ -106,8 +106,9 @@ impl PolyLine {
         side2.reverse();
         side1.extend(side2);
         side1.push(side1[0]);
-        side1.dedup();
-        Some(Ring::new(side1).make_polygons(boundary_width))
+        Some(
+            Ring::new(Pt2D::approx_dedupe(side1, 2.0 * EPSILON_DIST)).make_polygons(boundary_width),
+        )
     }
 
     pub fn reversed(&self) -> PolyLine {
@@ -352,10 +353,23 @@ impl PolyLine {
 
     // Things to remember about shifting polylines:
     // - the length before and after probably don't match up
-    // - the number of points will match
+    // - the number of points may not match either
     fn shift_with_corrections(&self, width: Distance) -> Warn<PolyLine> {
-        let mut raw = self.shift_with_sharp_angles(width, MITER_THRESHOLD);
-        raw.dedup();
+        // dedup() on the array _should_ work with PolyLine::new's assertion that no adjacent
+        // points are the same, according to Pt2D's PartialEq. They both use EPSILON_DIST. But have
+        // seen issues where this gets tripped, so be a little more careful and insist on double
+        // the epsilon distance between points.
+        let raw = Pt2D::approx_dedupe(
+            self.shift_with_sharp_angles(width, MITER_THRESHOLD),
+            2.0 * EPSILON_DIST,
+        );
+        if raw.len() < 2 {
+            // Just give up
+            return Warn::warn(
+                self.clone(),
+                format!("{} shifted {} collapses to a single point", self, width),
+            );
+        }
         let result = PolyLine::new(raw);
         let fixed = if result.pts.len() == self.pts.len() {
             fix_angles(self, result)
@@ -694,7 +708,7 @@ impl PolyLine {
 
 impl fmt::Display for PolyLine {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "PolyLine::new(vec![")?;
+        writeln!(f, "PolyLine::new(vec![     // length {}", self.length)?;
         for (idx, pt) in self.pts.iter().enumerate() {
             write!(f, "  Pt2D::new({}, {}),", pt.x(), pt.y())?;
             if idx > 0 {
