@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
-use crate::render::{DrawOptions, Renderable};
+use crate::render::{osm_rank_to_color, DrawOptions, Renderable};
 use ezgui::{Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{LaneType, Map, Road, RoadID};
@@ -76,9 +76,9 @@ impl Renderable for DrawRoad {
                             app.cs.road_center_line
                         };
                         let bg = if r.zone.is_some() {
-                            app.cs.driving_lane.lerp(app.cs.private_road, 0.5)
+                            osm_rank_to_color(&app.cs, r.get_rank()).lerp(app.cs.private_road, 0.5)
                         } else {
-                            app.cs.driving_lane
+                            osm_rank_to_color(&app.cs, r.get_rank())
                         };
                         let txt = Text::from(Line(name).fg(fg)).bg(bg);
                         let (pt, angle) = r.center_pts.dist_along(r.center_pts.length() / 2.0);

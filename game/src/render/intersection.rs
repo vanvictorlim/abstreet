@@ -3,7 +3,8 @@ use crate::colors::ColorScheme;
 use crate::helpers::ID;
 use crate::options::TrafficSignalStyle;
 use crate::render::{
-    draw_signal_phase, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS, OUTLINE_THICKNESS,
+    draw_signal_phase, osm_rank_to_color, DrawOptions, Renderable, CROSSWALK_LINE_THICKNESS,
+    OUTLINE_THICKNESS,
 };
 use abstutil::Timer;
 use ezgui::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, RewriteColor, Text};
@@ -33,7 +34,7 @@ impl DrawIntersection {
     ) -> DrawIntersection {
         // Order matters... main polygon first, then sidewalk corners.
         let mut default_geom = GeomBatch::new();
-        default_geom.push(cs.road_surface, i.polygon.clone());
+        default_geom.push(osm_rank_to_color(cs, i.get_rank(map)), i.polygon.clone());
         default_geom.extend(cs.sidewalk, calculate_corners(i, map, timer));
 
         for turn in map.get_turns_in_intersection(i.id) {

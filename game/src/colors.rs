@@ -64,6 +64,9 @@ pub struct ColorScheme {
     pub unzoomed_highway: Color,
     pub unzoomed_arterial: Color,
     pub unzoomed_residential: Color,
+    pub zoomed_highway: Color,
+    pub zoomed_arterial: Color,
+    pub zoomed_residential: Color,
 
     // Intersections
     pub normal_intersection: Color,
@@ -162,6 +165,9 @@ impl ColorScheme {
             unzoomed_highway: Color::rgb(232, 146, 162),
             unzoomed_arterial: Color::rgb(255, 199, 62),
             unzoomed_residential: Color::WHITE,
+            zoomed_highway: Color::hex("#BEB2C0"),
+            zoomed_arterial: Color::hex("#B6BDC5"),
+            zoomed_residential: Color::hex("#C6CDD5"),
 
             // Intersections
             normal_intersection: Color::grey(0.2),

@@ -1,9 +1,9 @@
 use crate::app::App;
 use crate::colors::ColorScheme;
 use crate::helpers::ID;
-use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use crate::render::{osm_rank_to_color, DrawOptions, Renderable, OUTLINE_THICKNESS};
 use abstutil::Timer;
-use ezgui::{Color, Drawable, FancyColor, GeomBatch, GfxCtx, Prerender, RewriteColor};
+use ezgui::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Lane, LaneID, LaneType, Map, Road, TurnType, PARKING_SPOT_LENGTH};
 
@@ -17,7 +17,7 @@ pub struct AlmostDrawLane {
 }
 
 impl AlmostDrawLane {
-    pub fn finish(mut self, prerender: &Prerender, cs: &ColorScheme, lane: &Lane) -> DrawLane {
+    pub fn finish(mut self, prerender: &Prerender, lane: &Lane) -> DrawLane {
         // Need prerender to load the (cached) SVGs
         if lane.is_bus() || lane.is_biking() || lane.lane_type == LaneType::Construction {
             let buffer = Distance::meters(2.0);
@@ -100,7 +100,7 @@ impl DrawLane {
             draw.push(
                 match lane.lane_type {
                     LaneType::Sidewalk => cs.sidewalk,
-                    _ => cs.road_surface,
+                    _ => osm_rank_to_color(cs, road.get_rank()),
                 },
                 polygon.clone(),
             );

@@ -25,7 +25,7 @@ pub use crate::render::pedestrian::{DrawPedCrowd, DrawPedestrian};
 pub use crate::render::road::DrawRoad;
 pub use crate::render::traffic_signal::{draw_signal_phase, make_signal_diagram};
 pub use crate::render::turn::{DrawTurnGroup, DrawUberTurnGroup};
-use ezgui::{GfxCtx, Prerender};
+use ezgui::{Color, GfxCtx, Prerender};
 use geom::{Distance, Polygon, Pt2D};
 use map_model::{IntersectionID, Map};
 use sim::{DrawCarInput, VehicleType};
@@ -83,5 +83,15 @@ impl DrawOptions {
             suppress_traffic_signal_details: Vec::new(),
             label_buildings: false,
         }
+    }
+}
+
+pub fn osm_rank_to_color(cs: &ColorScheme, rank: usize) -> Color {
+    if rank >= 16 {
+        cs.zoomed_highway
+    } else if rank >= 6 {
+        cs.zoomed_arterial
+    } else {
+        cs.zoomed_residential
     }
 }
