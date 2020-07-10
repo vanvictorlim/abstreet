@@ -94,11 +94,13 @@ impl VehiclePathfinder {
                 }
                 (Node::Lane(l), Node::UberTurn(ut)) => {
                     steps.push(PathStep::Lane(l));
-                    for t in &self.uber_turns[ut].path {
-                        steps.push(PathStep::Turn(*t));
-                        steps.push(PathStep::Lane(t.dst));
+                    let ut = self.uber_turns[ut].clone();
+                    // Simplify life a little
+                    if ut.path.len() == 1 {
+                        steps.push(PathStep::Turn(ut.path[0]));
+                    } else {
+                        steps.push(PathStep::UberTurn(ut));
                     }
-                    steps.pop();
                 }
                 (Node::UberTurn(_), Node::Lane(_)) => {
                     // Don't add anything; the lane will be added by some other case

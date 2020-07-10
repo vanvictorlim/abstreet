@@ -320,8 +320,15 @@ impl Router {
             if steps.len() < 5 {
                 return;
             }
-            match (steps[1], steps[4]) {
-                (PathStep::Turn(t), PathStep::Lane(l)) => (t, l),
+            // Don't muck with an uber-turn in between either!
+            if let PathStep::UberTurn(_) = &steps[2] {
+                return;
+            }
+            if let PathStep::UberTurn(_) = &steps[3] {
+                return;
+            }
+            match (&steps[1], &steps[4]) {
+                (PathStep::Turn(t), PathStep::Lane(l)) => (*t, *l),
                 _ => {
                     return;
                 }

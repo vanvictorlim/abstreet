@@ -10,7 +10,7 @@ use self::walking::{one_step_walking_path, walking_path_to_steps, SidewalkPathfi
 pub use self::walking::{walking_cost, WalkingNode};
 use crate::{
     osm, BusRouteID, BusStopID, Intersection, Lane, LaneID, LaneType, Map, Position, Traversable,
-    TurnID, Zone,
+    TurnID, UberTurn, Zone,
 };
 use abstutil::Timer;
 use enumset::EnumSetType;
@@ -19,21 +19,36 @@ use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use std::fmt;
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PathStep {
     // Original direction
     Lane(LaneID),
     // Sidewalks only!
     ContraflowLane(LaneID),
     Turn(TurnID),
+    // Some helpful invariants:
+    // - UberTurns won't appear in walking paths
+    // - A path can never start or end with an UberTurn
+    UberTurn(UberTurn),
 }
 
 impl PathStep {
+    pub fn length(&self, map: &Map) -> Distance {
+        match self {
+            PathStep::Lane(l) | PathStep::ContraflowLane(l) => map.get_l(*l).length(),
+            PathStep::Turn(t) => map.get_t(*t).geom.length(),
+            PathStep::UberTurn(ut) => ut.geom(map).length(),
+        }
+    }
+
+    // TODO Should really just remove this...
     pub fn as_traversable(&self) -> Traversable {
         match self {
             PathStep::Lane(id) => Traversable::Lane(*id),
             PathStep::ContraflowLane(id) => Traversable::Lane(*id),
             PathStep::Turn(id) => Traversable::Turn(*id),
+            // TODO uh oh
+            PathStep::UberTurn(_) => unreachable!(),
         }
     }
 
@@ -88,6 +103,14 @@ impl PathStep {
                     pts.slice(start, pts.length())
                 }
             }
+            PathStep::UberTurn(ut) => {
+                let pts = ut.geom(map);
+                if let Some(d) = dist_ahead {
+                    pts.slice(start, start + d)
+                } else {
+                    pts.slice(start, pts.length())
+                }
+            }
         }
     }
 }
@@ -107,17 +130,17 @@ pub struct Path {
 impl Path {
     pub(crate) fn new(map: &Map, steps: Vec<PathStep>, end_dist: Distance) -> Path {
         // Haven't seen problems here in a very long time. Noticeably saves some time to skip.
-        if false {
+        if true {
             validate_continuity(map, &steps);
         }
-        if false {
+        if true {
             validate_restrictions(map, &steps);
         }
         // Slightly expensive, but the contraction hierarchy weights aren't distances.
         let mut total_length = Distance::ZERO;
         let mut total_lanes = 0;
         for s in &steps {
-            total_length += s.as_traversable().length(map);
+            total_length += s.length(map);
             match s {
                 PathStep::Lane(_) | PathStep::ContraflowLane(_) => total_lanes += 1,
                 _ => {}
@@ -187,12 +210,12 @@ impl Path {
 
     pub fn shift(&mut self, map: &Map) -> PathStep {
         let step = self.steps.pop_front().unwrap();
-        self.crossed_so_far += step.as_traversable().length(map);
+        self.crossed_so_far += step.length(map);
         step
     }
 
     pub fn add(&mut self, step: PathStep, map: &Map) {
-        self.total_length += step.as_traversable().length(map);
+        self.total_length += step.length(map);
         match step {
             PathStep::Lane(_) | PathStep::ContraflowLane(_) => self.total_lanes += 1,
             _ => {}
@@ -203,9 +226,9 @@ impl Path {
     // Trusting the caller to do this in valid ways.
     pub fn modify_step(&mut self, idx: usize, step: PathStep, map: &Map) {
         assert!(idx != 0);
-        self.total_length -= self.steps[idx].as_traversable().length(map);
+        self.total_length -= self.steps[idx].length(map);
         self.steps[idx] = step;
-        self.total_length += self.steps[idx].as_traversable().length(map);
+        self.total_length += self.steps[idx].length(map);
 
         if self.total_length < Distance::ZERO {
             panic!(
@@ -216,15 +239,15 @@ impl Path {
     }
 
     pub fn current_step(&self) -> PathStep {
-        self.steps[0]
+        self.steps[0].clone()
     }
 
     pub fn next_step(&self) -> PathStep {
-        self.steps[1]
+        self.steps[1].clone()
     }
 
     pub fn last_step(&self) -> PathStep {
-        self.steps[self.steps.len() - 1]
+        self.steps[self.steps.len() - 1].clone()
     }
 
     // dist_ahead is unlimited when None.
@@ -327,7 +350,7 @@ impl Path {
 
     // Not for walking paths
     fn append(&mut self, other: Path, map: &Map) {
-        let turn = match (*self.steps.back().unwrap(), other.steps[0]) {
+        let turn = match (self.steps.back().unwrap().clone(), other.steps[0].clone()) {
             (PathStep::Lane(src), PathStep::Lane(dst)) => TurnID {
                 parent: map.get_l(src).dst_i,
                 src,
@@ -433,15 +456,17 @@ fn validate_continuity(map: &Map, steps: &Vec<PathStep>) {
         panic!("Empty path");
     }
     for pair in steps.windows(2) {
-        let from = match pair[0] {
+        let from = match pair[0].clone() {
             PathStep::Lane(id) => map.get_l(id).last_pt(),
             PathStep::ContraflowLane(id) => map.get_l(id).first_pt(),
             PathStep::Turn(id) => map.get_t(id).geom.last_pt(),
+            PathStep::UberTurn(ut) => map.get_t(*ut.path.last().unwrap()).geom.last_pt(),
         };
-        let to = match pair[1] {
+        let to = match pair[1].clone() {
             PathStep::Lane(id) => map.get_l(id).first_pt(),
             PathStep::ContraflowLane(id) => map.get_l(id).last_pt(),
             PathStep::Turn(id) => map.get_t(id).geom.first_pt(),
+            PathStep::UberTurn(ut) => map.get_t(ut.path[0]).geom.first_pt(),
         };
         let len = from.dist_to(to);
         if len > EPSILON_DIST {
@@ -461,6 +486,7 @@ fn validate_continuity(map: &Map, steps: &Vec<PathStep>) {
                         map.get_l(*l).src_i
                     ),
                     PathStep::Turn(_) => println!("  {:?}", s),
+                    PathStep::UberTurn(_) => println!("  {:?}", s),
                 }
             }
             panic!(
@@ -474,11 +500,11 @@ fn validate_continuity(map: &Map, steps: &Vec<PathStep>) {
 fn validate_restrictions(map: &Map, steps: &Vec<PathStep>) {
     for triple in steps.windows(5) {
         if let (PathStep::Lane(l1), PathStep::Lane(l2), PathStep::Lane(l3)) =
-            (triple[0], triple[2], triple[4])
+            (&triple[0], &triple[2], &triple[4])
         {
-            let from = map.get_parent(l1);
-            let via = map.get_l(l2).parent;
-            let to = map.get_l(l3).parent;
+            let from = map.get_parent(*l1);
+            let via = map.get_l(*l2).parent;
+            let to = map.get_l(*l3).parent;
 
             for (dont_via, dont_to) in &from.complicated_turn_restrictions {
                 if via == *dont_via && to == *dont_to {

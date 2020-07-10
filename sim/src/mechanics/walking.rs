@@ -361,8 +361,8 @@ impl WalkingSimState {
     ) -> Option<PolyLine> {
         let p = self.peds.get(&id)?;
         let body_radius = SIDEWALK_THICKNESS / 4.0;
-        let dist = (p.get_dist_along(now, map) + body_radius)
-            .min(p.path.current_step().as_traversable().length(map));
+        let dist =
+            (p.get_dist_along(now, map) + body_radius).min(p.path.current_step().length(map));
         p.path.trace(map, dist, dist_ahead)
     }
 
@@ -529,6 +529,7 @@ impl Pedestrian {
                 PathStep::Lane(l) => map.get_l(l).length(),
                 PathStep::ContraflowLane(_) => Distance::ZERO,
                 PathStep::Turn(t) => map.get_t(t).geom.length(),
+                PathStep::UberTurn(_) => unreachable!(),
             }
         };
         let dist_int = DistanceInterval::new_walking(start_dist, end_dist);
@@ -683,6 +684,7 @@ impl Pedestrian {
             PathStep::Lane(_) => Distance::ZERO,
             PathStep::ContraflowLane(l) => map.get_l(l).length(),
             PathStep::Turn(_) => Distance::ZERO,
+            PathStep::UberTurn(_) => unreachable!(),
         };
         self.state = self.crossing_state(start_dist, now, map);
         peds_per_traversable.insert(self.path.current_step().as_traversable(), self.id);

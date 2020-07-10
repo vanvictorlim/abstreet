@@ -2,8 +2,8 @@ use crate::{AlertLocation, CarID, Event, ParkingSpot, TripID, TripMode, TripPhas
 use abstutil::Counter;
 use geom::{Distance, Duration, Histogram, Time};
 use map_model::{
-    BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Path, PathRequest, RoadID,
-    Traversable, TurnGroupID,
+    BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Path, PathRequest, PathStep,
+    RoadID, Traversable, TurnGroupID,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
@@ -174,10 +174,20 @@ impl Analytics {
 
     pub fn record_demand(&mut self, path: &Path, map: &Map) {
         for step in path.get_steps() {
-            if let Traversable::Turn(t) = step.as_traversable() {
-                if let Some(id) = map.get_turn_group(t) {
-                    *self.demand.entry(id).or_insert(0) += 1;
+            match step {
+                PathStep::Turn(t) => {
+                    if let Some(id) = map.get_turn_group(*t) {
+                        *self.demand.entry(id).or_insert(0) += 1;
+                    }
                 }
+                PathStep::UberTurn(ut) => {
+                    for t in &ut.path {
+                        if let Some(id) = map.get_turn_group(*t) {
+                            *self.demand.entry(id).or_insert(0) += 1;
+                        }
+                    }
+                }
+                _ => {}
             }
         }
     }
